@@ -1,0 +1,101 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1" />
+  <meta name="theme-color" content="#0b1220" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <title>FieldCam — SharePoint Camera</title>
+  <link rel="stylesheet" href="styles.css" />
+  <script src="https://alcdn.msauth.net/browser/2.38.3/js/msal-browser.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header class="topbar">
+      <div class="brand">
+        <span class="logo" aria-hidden="true"></span>
+        <div>
+          <strong>FieldCam</strong>
+          <small>SharePoint camera + watermark</small>
+        </div>
+      </div>
+      <div class="top-actions">
+        <button id="btnAuth" class="ghost" type="button">Sign in</button>
+        <button id="btnSettings" class="icon-btn" type="button" title="Settings" aria-label="Settings">⚙</button>
+      </div>
+    </header>
+    <main class="stage">
+      <section class="viewfinder" id="viewfinder">
+        <video id="video" playsinline autoplay muted></video>
+        <canvas id="overlay"></canvas>
+        <div class="hud">
+          <span id="statusChip" class="chip">Camera off</span>
+          <span id="gpsChip" class="chip dim">GPS idle</span>
+        </div>
+        <div class="live-watermark" id="liveWatermark"></div>
+      </section>
+      <section class="preview hidden" id="previewPane">
+        <img id="preview" alt="Captured photo with watermark" />
+      </section>
+    </main>
+    <section class="controls">
+      <div class="row meta">
+        <label>Caption<input id="caption" type="text" maxlength="120" placeholder="Job / site / note" /></label>
+        <label>Tag<input id="tag" type="text" maxlength="40" placeholder="INSPECT" /></label>
+      </div>
+      <div class="row buttons">
+        <button id="btnFlip" class="icon-btn" type="button" title="Switch camera">↻</button>
+        <button id="btnStart" class="secondary" type="button">Start camera</button>
+        <button id="btnCapture" class="primary" type="button" disabled>Capture</button>
+        <button id="btnRetake" class="ghost hidden" type="button">Retake</button>
+      </div>
+      <div class="row buttons">
+        <button id="btnDownload" class="secondary" type="button" disabled>Save JPEG</button>
+        <button id="btnUpload" class="primary" type="button" disabled>Upload to SharePoint</button>
+      </div>
+      <p id="message" class="message" role="status"></p>
+    </section>
+  </div>
+  <aside id="drawer" class="drawer" hidden>
+    <div class="drawer-panel">
+      <header>
+        <h2>Settings</h2>
+        <button id="btnCloseSettings" class="icon-btn" type="button">✕</button>
+      </header>
+      <form id="settingsForm">
+        <h3>SharePoint</h3>
+        <label>Site URL<input id="siteUrl" type="url" placeholder="https://contoso.sharepoint.com/sites/FieldOps" /></label>
+        <label>Library name<input id="libraryName" type="text" placeholder="Documents" /></label>
+        <label>Folder path<input id="folderPath" type="text" placeholder="FieldPhotos" /></label>
+        <h3>Microsoft sign-in (Graph)</h3>
+        <label>Azure AD client ID<input id="clientId" type="text" placeholder="00000000-0000-0000-0000-000000000000" /></label>
+        <label>Tenant ID<input id="tenantId" type="text" placeholder="common or your tenant GUID" /></label>
+        <p class="hint">Register a SPA in Entra ID. Redirect URI must match this page URL. Delegated permissions: Files.ReadWrite.All and Sites.ReadWrite.All.</p>
+        <h3>Watermark</h3>
+        <label>Organisation<input id="orgName" type="text" placeholder="Acme Field Services" /></label>
+        <label>Default text<input id="wmText" type="text" placeholder="CONFIDENTIAL — internal use" /></label>
+        <div class="split">
+          <label>Position
+            <select id="wmPosition">
+              <option value="bottom-left">Bottom left</option>
+              <option value="bottom-right">Bottom right</option>
+              <option value="top-left">Top left</option>
+              <option value="top-right">Top right</option>
+              <option value="banner">Full-width banner</option>
+            </select>
+          </label>
+          <label>Opacity<input id="wmOpacity" type="range" min="40" max="100" value="88" /></label>
+        </div>
+        <div class="toggles">
+          <label><input id="wmTimestamp" type="checkbox" checked /> Date and time</label>
+          <label><input id="wmGps" type="checkbox" checked /> GPS</label>
+          <label><input id="wmUser" type="checkbox" checked /> Signed-in user</label>
+          <label><input id="wmDiagonal" type="checkbox" /> Diagonal stamp</label>
+        </div>
+        <div class="drawer-actions"><button type="submit" class="primary">Save settings</button></div>
+      </form>
+    </div>
+  </aside>
+  <script src="app.js"></script>
+</body>
+</html>
